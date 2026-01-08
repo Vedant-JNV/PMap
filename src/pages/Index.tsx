@@ -9,6 +9,7 @@ import StatsBar from '@/components/StatsBar';
 import IssuePanel from '@/components/IssuePanel';
 import SubmitIssueModal from '@/components/SubmitIssueModal';
 import DraggablePanel from '@/components/DraggablePanel';
+import HeatmapLegend from '@/components/HeatmapLegend';
 import { Button } from '@/components/ui/button';
 import { useIssues } from '@/hooks/useIssues';
 import { Issue, IssueCategory } from '@/types/issues';
@@ -157,6 +158,9 @@ const Index = () => {
             </div>
           </motion.div>
         )}
+
+        {/* Heatmap Legend */}
+        <HeatmapLegend visible={showHeatmap} />
 
         {/* Mobile FAB for adding issues */}
         <motion.div
