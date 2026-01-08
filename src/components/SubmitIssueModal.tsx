@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { CATEGORIES, IssueCategory } from '@/types/issues';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { X, MapPin, Send, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
+import { X, MapPin, Send, CheckCircle2, Loader2, AlertCircle, GripVertical } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface SubmitIssueModalProps {
@@ -29,6 +29,8 @@ const SubmitIssueModal = ({
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState<'category' | 'details'>('category');
+  const dragControls = useDragControls();
+  const constraintsRef = useRef<HTMLDivElement>(null);
 
   // Reset form when modal opens
   useEffect(() => {
@@ -104,28 +106,40 @@ const SubmitIssueModal = ({
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
             onClick={handleClose}
+            ref={constraintsRef}
           />
 
           {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 40 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 40 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-50 px-4"
+            drag
+            dragControls={dragControls}
+            dragListener={false}
+            dragMomentum={false}
+            dragElastic={0.1}
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-50 px-4 max-h-[90vh] overflow-auto"
           >
             <div className="bg-card rounded-2xl shadow-2xl overflow-hidden border border-border">
-              {/* Header */}
-              <div className="bg-gradient-to-r from-primary to-primary/80 p-5 text-primary-foreground relative">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleClose}
-                  disabled={isSubmitting}
-                  className="absolute top-3 right-3 text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/20"
-                >
-                  <X className="w-5 h-5" />
-                </Button>
+              {/* Header - draggable */}
+              <div 
+                className="bg-gradient-to-r from-primary to-primary/80 p-5 text-primary-foreground relative cursor-grab active:cursor-grabbing"
+                onPointerDown={(e) => dragControls.start(e)}
+              >
+                <div className="absolute top-3 right-3 flex items-center gap-1">
+                  <GripVertical className="w-4 h-4 text-primary-foreground/60" />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleClose}
+                    disabled={isSubmitting}
+                    className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/20"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-primary-foreground/20 flex items-center justify-center">
                     <MapPin className="w-6 h-6" />
