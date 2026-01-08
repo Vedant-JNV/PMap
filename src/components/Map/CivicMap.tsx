@@ -94,56 +94,60 @@ const CivicMap = ({ issues, showHeatmap, onIssueClick, onMapClick }: CivicMapPro
     }
 
     if (showHeatmap) {
-      // Create heatmap data with severity-based intensity
+      // Create heatmap data with severity-based intensity - enhanced visibility
       const heatData: [number, number, number][] = issues.map(issue => [
         issue.lat,
         issue.lng,
-        issue.severity / 10, // Normalize intensity
+        (issue.severity / 5) + 0.5, // Higher base intensity for visibility
       ]);
 
       if (heatData.length > 0) {
         heatLayerRef.current = L.heatLayer(heatData, {
-          radius: 35,
-          blur: 25,
-          maxZoom: 15,
-          max: 3,
+          radius: 60, // Much larger radius
+          blur: 35, // More blur for smooth gradients
+          maxZoom: 17,
+          max: 2,
+          minOpacity: 0.4, // More visible minimum opacity
           gradient: {
-            0.2: '#22c55e',
-            0.4: '#eab308',
-            0.6: '#f97316',
-            0.8: '#ef4444',
-            1.0: '#dc2626',
+            0.1: '#10b981', // emerald
+            0.25: '#22c55e', // green
+            0.4: '#eab308', // yellow
+            0.55: '#f97316', // orange
+            0.7: '#ef4444', // red
+            0.85: '#dc2626', // dark red
+            1.0: '#991b1b', // very dark red
           },
         });
         heatLayerRef.current.addTo(mapRef.current);
       }
+      // In heatmap mode, don't show markers
+    } else {
+      // Only show markers when NOT in heatmap mode
+      issues.forEach(issue => {
+        const categoryInfo = getCategoryInfo(issue.category);
+        
+        const marker = L.marker([issue.lat, issue.lng], {
+          icon: L.divIcon({
+            html: `
+              <div class="issue-marker" style="background-color: ${categoryInfo.color}">
+                <span class="marker-icon">${categoryInfo.icon}</span>
+                ${issue.reportCount > 1 ? `<span class="marker-count">${issue.reportCount}</span>` : ''}
+              </div>
+            `,
+            className: 'custom-marker',
+            iconSize: L.point(36, 36),
+            iconAnchor: L.point(18, 18),
+          }),
+        });
+
+        marker.on('click', (e) => {
+          L.DomEvent.stopPropagation(e);
+          onIssueClick(issue);
+        });
+
+        markersRef.current?.addLayer(marker);
+      });
     }
-
-    // Always add markers (visible through heatmap or standalone)
-    issues.forEach(issue => {
-      const categoryInfo = getCategoryInfo(issue.category);
-      
-      const marker = L.marker([issue.lat, issue.lng], {
-        icon: L.divIcon({
-          html: `
-            <div class="issue-marker" style="background-color: ${categoryInfo.color}">
-              <span class="marker-icon">${categoryInfo.icon}</span>
-              ${issue.reportCount > 1 ? `<span class="marker-count">${issue.reportCount}</span>` : ''}
-            </div>
-          `,
-          className: 'custom-marker',
-          iconSize: L.point(36, 36),
-          iconAnchor: L.point(18, 18),
-        }),
-      });
-
-      marker.on('click', (e) => {
-        L.DomEvent.stopPropagation(e);
-        onIssueClick(issue);
-      });
-
-      markersRef.current?.addLayer(marker);
-    });
 
   }, [issues, showHeatmap, onIssueClick, mapReady]);
 
