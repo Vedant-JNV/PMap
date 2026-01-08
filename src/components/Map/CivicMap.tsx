@@ -114,19 +114,18 @@ const CivicMap = ({ issues, showHeatmap, onIssueClick, onMapClick }: CivicMapPro
 
       if (heatData.length > 0) {
         heatLayerRef.current = L.heatLayer(heatData, {
-          radius: 60, // Much larger radius
-          blur: 35, // More blur for smooth gradients
+          radius: 45, // Reduced radius for tighter hotspots
+          blur: 30, // Slightly less blur for defined areas
           maxZoom: 17,
-          max: 2,
-          minOpacity: 0.4, // More visible minimum opacity
+          max: 1.5, // Lower max for less intense peaks
+          minOpacity: 0.35,
           gradient: {
-            0.1: '#10b981', // emerald
-            0.25: '#22c55e', // green
-            0.4: '#eab308', // yellow
-            0.55: '#f97316', // orange
-            0.7: '#ef4444', // red
-            0.85: '#dc2626', // dark red
-            1.0: '#991b1b', // very dark red
+            0.0: '#10b981', // emerald - low
+            0.2: '#22c55e', // green
+            0.4: '#eab308', // yellow - medium
+            0.6: '#f97316', // orange
+            0.8: '#ef4444', // red - high
+            1.0: '#dc2626', // dark red - very high (less extreme)
           },
         });
         heatLayerRef.current.addTo(mapRef.current);
