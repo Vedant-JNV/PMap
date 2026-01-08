@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import CivicMap from '@/components/Map/CivicMap';
@@ -8,7 +8,7 @@ import CategoryFilter from '@/components/CategoryFilter';
 import StatsBar from '@/components/StatsBar';
 import IssuePanel from '@/components/IssuePanel';
 import SubmitIssueModal from '@/components/SubmitIssueModal';
-import CollapsiblePanel from '@/components/CollapsiblePanel';
+import DraggablePanel from '@/components/DraggablePanel';
 import { Button } from '@/components/ui/button';
 import { useIssues } from '@/hooks/useIssues';
 import { Issue, IssueCategory } from '@/types/issues';
@@ -31,6 +31,8 @@ const Index = () => {
   const [showStats, setShowStats] = useState(true);
   const [showFilters, setShowFilters] = useState(true);
   const [showHint, setShowHint] = useState(true);
+
+  const constraintsRef = useRef<HTMLDivElement>(null);
 
   const handleIssueClick = useCallback((issue: Issue) => {
     setSelectedIssue(issue);
@@ -66,7 +68,7 @@ const Index = () => {
       />
 
       {/* Main content */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative" ref={constraintsRef}>
         {/* Map */}
         <CivicMap
           issues={filteredIssues}
@@ -77,32 +79,40 @@ const Index = () => {
 
         {/* Overlay Controls */}
         <div className="absolute top-4 left-4 right-4 z-10 pointer-events-none">
-          <div className="max-w-screen-xl mx-auto flex flex-col gap-3">
+          <div className="max-w-screen-xl mx-auto flex flex-col gap-4 items-start">
             {/* Stats Bar */}
             {showStats && (
               <div className="pointer-events-auto">
-                <CollapsiblePanel onClose={() => setShowStats(false)}>
+                <DraggablePanel 
+                  title="Stats" 
+                  onClose={() => setShowStats(false)}
+                  constraintsRef={constraintsRef}
+                >
                   <StatsBar stats={stats} />
-                </CollapsiblePanel>
+                </DraggablePanel>
               </div>
             )}
 
             {/* Category Filter */}
             {showFilters && (
-              <div className="pointer-events-auto w-fit">
-                <CollapsiblePanel onClose={() => setShowFilters(false)}>
+              <div className="pointer-events-auto">
+                <DraggablePanel 
+                  title="Filters" 
+                  onClose={() => setShowFilters(false)}
+                  constraintsRef={constraintsRef}
+                >
                   <CategoryFilter
                     selectedCategories={selectedCategories}
                     onToggleCategory={toggleCategory}
                     onClearFilters={clearFilters}
                   />
-                </CollapsiblePanel>
+                </DraggablePanel>
               </div>
             )}
 
             {/* Restore buttons when panels are hidden */}
             {(!showStats || !showFilters) && (
-              <div className="pointer-events-auto flex gap-2">
+              <div className="pointer-events-auto flex gap-2 flex-wrap">
                 {!showStats && (
                   <Button
                     variant="outline"

@@ -14,12 +14,16 @@ interface CivicMapProps {
   onMapClick: (lat: number, lng: number) => void;
 }
 
+// Zoom level at which markers appear in heatmap mode
+const MARKER_ZOOM_THRESHOLD = 16;
+
 const CivicMap = ({ issues, showHeatmap, onIssueClick, onMapClick }: CivicMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.MarkerClusterGroup | null>(null);
   const heatLayerRef = useRef<L.HeatLayer | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(13);
 
   // Initialize map
   useEffect(() => {
@@ -68,6 +72,13 @@ const CivicMap = ({ issues, showHeatmap, onIssueClick, onMapClick }: CivicMapPro
     // Handle map clicks for new issue submission
     mapRef.current.on('click', (e: L.LeafletMouseEvent) => {
       onMapClick(e.latlng.lat, e.latlng.lng);
+    });
+
+    // Track zoom level changes
+    mapRef.current.on('zoomend', () => {
+      if (mapRef.current) {
+        setZoomLevel(mapRef.current.getZoom());
+      }
     });
 
     setMapReady(true);
@@ -120,36 +131,44 @@ const CivicMap = ({ issues, showHeatmap, onIssueClick, onMapClick }: CivicMapPro
         });
         heatLayerRef.current.addTo(mapRef.current);
       }
-      // In heatmap mode, don't show markers
+
+      // Show markers only when zoomed in close enough in heatmap mode
+      if (zoomLevel >= MARKER_ZOOM_THRESHOLD) {
+        addMarkersToMap(issues);
+      }
     } else {
-      // Only show markers when NOT in heatmap mode
-      issues.forEach(issue => {
-        const categoryInfo = getCategoryInfo(issue.category);
-        
-        const marker = L.marker([issue.lat, issue.lng], {
-          icon: L.divIcon({
-            html: `
-              <div class="issue-marker" style="background-color: ${categoryInfo.color}">
-                <span class="marker-icon">${categoryInfo.icon}</span>
-                ${issue.reportCount > 1 ? `<span class="marker-count">${issue.reportCount}</span>` : ''}
-              </div>
-            `,
-            className: 'custom-marker',
-            iconSize: L.point(36, 36),
-            iconAnchor: L.point(18, 18),
-          }),
-        });
-
-        marker.on('click', (e) => {
-          L.DomEvent.stopPropagation(e);
-          onIssueClick(issue);
-        });
-
-        markersRef.current?.addLayer(marker);
-      });
+      // Always show markers when NOT in heatmap mode
+      addMarkersToMap(issues);
     }
 
-  }, [issues, showHeatmap, onIssueClick, mapReady]);
+  }, [issues, showHeatmap, onIssueClick, mapReady, zoomLevel]);
+
+  const addMarkersToMap = (issuesToAdd: Issue[]) => {
+    issuesToAdd.forEach(issue => {
+      const categoryInfo = getCategoryInfo(issue.category);
+      
+      const marker = L.marker([issue.lat, issue.lng], {
+        icon: L.divIcon({
+          html: `
+            <div class="issue-marker" style="background-color: ${categoryInfo.color}">
+              <span class="marker-icon">${categoryInfo.icon}</span>
+              ${issue.reportCount > 1 ? `<span class="marker-count">${issue.reportCount}</span>` : ''}
+            </div>
+          `,
+          className: 'custom-marker',
+          iconSize: L.point(36, 36),
+          iconAnchor: L.point(18, 18),
+        }),
+      });
+
+      marker.on('click', (e) => {
+        L.DomEvent.stopPropagation(e);
+        onIssueClick(issue);
+      });
+
+      markersRef.current?.addLayer(marker);
+    });
+  };
 
   return (
     <div ref={mapContainer} className="absolute inset-0 z-0" />
