@@ -29,8 +29,8 @@ const CivicMap = ({ issues, showHeatmap, onIssueClick, onMapClick }: CivicMapPro
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
 
-    // Default center (San Francisco)
-    const defaultCenter: L.LatLngExpression = [37.7749, -122.4194];
+    // Default center (New Delhi, India)
+    const defaultCenter: L.LatLngExpression = [28.6139, 77.2090];
 
     mapRef.current = L.map(mapContainer.current, {
       center: defaultCenter,
