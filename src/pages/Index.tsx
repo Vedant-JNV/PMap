@@ -8,6 +8,7 @@ import CategoryFilter from '@/components/CategoryFilter';
 import StatsBar from '@/components/StatsBar';
 import IssuePanel from '@/components/IssuePanel';
 import SubmitIssueModal from '@/components/SubmitIssueModal';
+import CollapsiblePanel from '@/components/CollapsiblePanel';
 import { Button } from '@/components/ui/button';
 import { useIssues } from '@/hooks/useIssues';
 import { Issue, IssueCategory } from '@/types/issues';
@@ -27,6 +28,9 @@ const Index = () => {
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [showStats, setShowStats] = useState(true);
+  const [showFilters, setShowFilters] = useState(true);
+  const [showHint, setShowHint] = useState(true);
 
   const handleIssueClick = useCallback((issue: Issue) => {
     setSelectedIssue(issue);
@@ -75,32 +79,74 @@ const Index = () => {
         <div className="absolute top-4 left-4 right-4 z-10 pointer-events-none">
           <div className="max-w-screen-xl mx-auto flex flex-col gap-3">
             {/* Stats Bar */}
-            <div className="pointer-events-auto">
-              <StatsBar stats={stats} />
-            </div>
+            {showStats && (
+              <div className="pointer-events-auto">
+                <CollapsiblePanel onClose={() => setShowStats(false)}>
+                  <StatsBar stats={stats} />
+                </CollapsiblePanel>
+              </div>
+            )}
 
             {/* Category Filter */}
-            <div className="pointer-events-auto w-fit">
-              <CategoryFilter
-                selectedCategories={selectedCategories}
-                onToggleCategory={toggleCategory}
-                onClearFilters={clearFilters}
-              />
-            </div>
+            {showFilters && (
+              <div className="pointer-events-auto w-fit">
+                <CollapsiblePanel onClose={() => setShowFilters(false)}>
+                  <CategoryFilter
+                    selectedCategories={selectedCategories}
+                    onToggleCategory={toggleCategory}
+                    onClearFilters={clearFilters}
+                  />
+                </CollapsiblePanel>
+              </div>
+            )}
+
+            {/* Restore buttons when panels are hidden */}
+            {(!showStats || !showFilters) && (
+              <div className="pointer-events-auto flex gap-2">
+                {!showStats && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowStats(true)}
+                    className="bg-card/95 backdrop-blur-sm shadow-lg"
+                  >
+                    Show Stats
+                  </Button>
+                )}
+                {!showFilters && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowFilters(true)}
+                    className="bg-card/95 backdrop-blur-sm shadow-lg"
+                  >
+                    Show Filters
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Click hint */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
-        >
-          <div className="bg-card/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-border text-sm text-muted-foreground">
-            📍 Click anywhere on the map to report an issue
-          </div>
-        </motion.div>
+        {showHint && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
+          >
+            <div className="bg-card/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-border text-sm text-muted-foreground flex items-center gap-2">
+              📍 Click anywhere on the map to report an issue
+              <button
+                onClick={() => setShowHint(false)}
+                className="ml-1 text-muted-foreground/60 hover:text-foreground transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+          </motion.div>
+        )}
 
         {/* Mobile FAB for adding issues */}
         <motion.div
