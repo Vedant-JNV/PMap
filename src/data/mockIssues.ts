@@ -43,7 +43,7 @@ const DELHI_HOTSPOTS = [
   { lat: 28.6358, lng: 77.2245, name: 'Rajiv Chowk', density: 22 },
 ];
 
-const categories: IssueCategory[] = ['water', 'roads', 'garbage', 'traffic', 'lighting', 'safety'];
+const categories: IssueCategory[] = ['water', 'roads', 'garbage', 'traffic', 'lighting', 'safety', 'other'];
 
 const getRandomDescription = (category: IssueCategory): string => {
   const descriptions: Record<IssueCategory, string[]> = {
@@ -118,6 +118,18 @@ const getRandomDescription = (category: IssueCategory): string => {
       'Illegal liquor shop near school',
       'Dangerous tree about to fall',
       'Boundary wall collapsed',
+    ],
+    other: [
+      'Noise pollution from construction',
+      'Illegal encroachment on public land',
+      'Public toilet needs cleaning',
+      'Park maintenance required',
+      'Community hall in poor condition',
+      'Mosquito breeding ground',
+      'Unauthorized advertisement boards',
+      'Dead animal on road',
+      'Public bench broken',
+      'Footpath encroachment by vendors',
     ],
   };
 

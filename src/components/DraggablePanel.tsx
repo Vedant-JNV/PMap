@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
-import { motion, useDragControls, AnimatePresence } from 'framer-motion';
-import { Minus, X, GripVertical, ChevronUp, Maximize2 } from 'lucide-react';
+import { motion, useDragControls } from 'framer-motion';
+import { X, GripVertical, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface DraggablePanelProps {
@@ -8,7 +8,6 @@ interface DraggablePanelProps {
   title?: string;
   onClose?: () => void;
   className?: string;
-  defaultMinimized?: boolean;
   constraintsRef?: React.RefObject<HTMLElement>;
 }
 
@@ -17,10 +16,8 @@ const DraggablePanel = ({
   title,
   onClose,
   className = '',
-  defaultMinimized = false,
   constraintsRef,
 }: DraggablePanelProps) => {
-  const [isMinimized, setIsMinimized] = useState(defaultMinimized);
   const [isVisible, setIsVisible] = useState(true);
   const dragControls = useDragControls();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -70,58 +67,21 @@ const DraggablePanel = ({
             {title}
           </span>
         )}
-        <div className="flex items-center gap-0.5 ml-1">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsMinimized(!isMinimized);
-            }}
-            className="p-0.5 rounded hover:bg-background/50 transition-colors"
-          >
-            <Minus className="w-3 h-3 text-muted-foreground" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsVisible(false);
-              onClose?.();
-            }}
-            className="p-0.5 rounded hover:bg-destructive/20 transition-colors"
-          >
-            <X className="w-3 h-3 text-muted-foreground" />
-          </button>
-        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsVisible(false);
+            onClose?.();
+          }}
+          className="p-0.5 rounded hover:bg-destructive/20 transition-colors ml-1"
+        >
+          <X className="w-3 h-3 text-muted-foreground" />
+        </button>
       </div>
 
-      <AnimatePresence mode="wait">
-        {!isMinimized ? (
-          <motion.div
-            key="expanded"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="pt-2"
-          >
-            {children}
-          </motion.div>
-        ) : (
-          <motion.div
-            key="minimized"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-card/95 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg border border-border mt-2"
-          >
-            <button 
-              onClick={() => setIsMinimized(false)}
-              className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ChevronUp className="w-3 h-3" />
-              Expand {title || 'panel'}
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div className="pt-2">
+        {children}
+      </div>
     </motion.div>
   );
 };

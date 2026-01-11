@@ -120,9 +120,10 @@ const SubmitIssueModal = ({
             dragListener={false}
             dragMomentum={false}
             dragElastic={0.1}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-50 px-4 max-h-[90vh] overflow-auto"
+            dragConstraints={constraintsRef}
+            className="fixed inset-0 flex items-center justify-center z-50 px-4 pointer-events-none"
           >
-            <div className="bg-card rounded-2xl shadow-2xl overflow-hidden border border-border">
+            <div className="bg-card rounded-2xl shadow-2xl overflow-hidden border border-border w-full max-w-lg max-h-[90vh] overflow-y-auto pointer-events-auto">
               {/* Header - draggable */}
               <div 
                 className="bg-gradient-to-r from-primary to-primary/80 p-5 text-primary-foreground relative cursor-grab active:cursor-grabbing"
