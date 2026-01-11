@@ -4,7 +4,8 @@ export type IssueCategory =
   | 'garbage'
   | 'traffic'
   | 'lighting'
-  | 'safety';
+  | 'safety'
+  | 'other';
 
 export interface Issue {
   id: string;
@@ -36,6 +37,7 @@ export const CATEGORIES: CategoryInfo[] = [
   { id: 'traffic', label: 'Traffic & Mobility', icon: '🚗', color: '#ef4444', weight: 1.0 },
   { id: 'lighting', label: 'Street Lighting', icon: '💡', color: '#a855f7', weight: 0.9 },
   { id: 'safety', label: 'Public Safety', icon: '🛡️', color: '#06b6d4', weight: 1.4 },
+  { id: 'other', label: 'Other', icon: '📋', color: '#6b7280', weight: 1.0 },
 ];
 
 export const getCategoryInfo = (id: IssueCategory): CategoryInfo => {
