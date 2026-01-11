@@ -29,8 +29,8 @@ const Index = () => {
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [showStats, setShowStats] = useState(true);
-  const [showFilters, setShowFilters] = useState(true);
+  const [showStats, setShowStats] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [showHint, setShowHint] = useState(true);
 
   const constraintsRef = useRef<HTMLDivElement>(null);
