@@ -1,11 +1,83 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster';
 import 'leaflet.heat';
-import { Issue, getCategoryInfo } from '@/types/issues';
+import { Issue, getCategoryInfo, IssueCategory } from '@/types/issues';
+
+// Category priority weights (higher = more heat contribution)
+const CATEGORY_HEAT_WEIGHTS: Record<IssueCategory, number> = {
+  safety: 2.0,
+  water: 1.8,
+  roads: 1.5,
+  garbage: 1.3,
+  traffic: 1.2,
+  lighting: 1.0,
+  other: 0.8,
+};
+
+// Maximum weight cap to prevent one area from dominating
+const MAX_HEAT_WEIGHT = 1.0;
+const MIN_HEAT_WEIGHT = 0.1;
+
+// Time decay configuration
+const DAYS_FOR_FULL_DECAY = 365 * 10; // 10 years for complete decay (intensity → 0)
+const HALF_LIFE_DAYS = 180; // Issues lose half their intensity after 6 months
+
+/**
+ * Calculate time decay factor based on issue age
+ * Returns 0-1, where 1 is brand new and 0 is 10+ years old
+ */
+const calculateTimeDecay = (lastUpdated: Date): number => {
+  const now = new Date();
+  const ageInMs = now.getTime() - new Date(lastUpdated).getTime();
+  const ageInDays = ageInMs / (1000 * 60 * 60 * 24);
+  
+  // Complete decay after 10 years
+  if (ageInDays >= DAYS_FOR_FULL_DECAY) {
+    return 0;
+  }
+  
+  // Exponential decay with half-life
+  // Formula: decay = 0.5^(age/half_life)
+  const decayFactor = Math.pow(0.5, ageInDays / HALF_LIFE_DAYS);
+  
+  // Ensure minimum of 0 for very old issues
+  return Math.max(0, Math.min(1, decayFactor));
+};
+
+/**
+ * Calculate normalized heat weight for an issue
+ * Considers: report count, category weight, and time decay
+ */
+const calculateHeatWeight = (issue: Issue, maxReportCount: number): number => {
+  // Normalize report count (0-1 scale)
+  const normalizedReportCount = maxReportCount > 0 
+    ? Math.log1p(issue.reportCount) / Math.log1p(maxReportCount) 
+    : 0.5;
+  
+  // Get category weight
+  const categoryWeight = CATEGORY_HEAT_WEIGHTS[issue.category] || 1.0;
+  
+  // Get time decay factor
+  const timeDecay = calculateTimeDecay(issue.lastUpdated);
+  
+  // If time decay is 0 (10+ years old), return 0
+  if (timeDecay === 0) {
+    return 0;
+  }
+  
+  // Combined weight: normalized reports × category × time decay
+  const rawWeight = normalizedReportCount * categoryWeight * timeDecay;
+  
+  // Cap the weight to prevent domination
+  const cappedWeight = Math.min(rawWeight, MAX_HEAT_WEIGHT);
+  
+  // Ensure minimum visibility for active issues
+  return Math.max(cappedWeight, MIN_HEAT_WEIGHT * timeDecay);
+};
 
 interface CivicMapProps {
   issues: Issue[];
@@ -105,27 +177,33 @@ const CivicMap = ({ issues, showHeatmap, onIssueClick, onMapClick }: CivicMapPro
     }
 
     if (showHeatmap) {
-      // Create heatmap data with severity-based intensity - enhanced visibility
-      const heatData: [number, number, number][] = issues.map(issue => [
-        issue.lat,
-        issue.lng,
-        (issue.severity / 5) + 0.5, // Higher base intensity for visibility
-      ]);
+      // Find max report count for normalization
+      const maxReportCount = Math.max(...issues.map(i => i.reportCount), 1);
+      
+      // Create heatmap data with normalized, time-decayed, category-weighted intensity
+      const heatData: [number, number, number][] = issues
+        .map(issue => {
+          const weight = calculateHeatWeight(issue, maxReportCount);
+          return [issue.lat, issue.lng, weight] as [number, number, number];
+        })
+        .filter(([, , weight]) => weight > 0); // Exclude completely decayed issues
 
       if (heatData.length > 0) {
         heatLayerRef.current = L.heatLayer(heatData, {
-          radius: 45, // Reduced radius for tighter hotspots
-          blur: 30, // Slightly less blur for defined areas
+          radius: 35, // Smaller radius for less blobby appearance
+          blur: 20, // Less blur for more defined hotspots
           maxZoom: 17,
-          max: 1.5, // Lower max for less intense peaks
-          minOpacity: 0.35,
+          max: MAX_HEAT_WEIGHT, // Use our cap as the max
+          minOpacity: 0.3,
           gradient: {
             0.0: '#10b981', // emerald - low
-            0.2: '#22c55e', // green
-            0.4: '#eab308', // yellow - medium
+            0.15: '#22c55e', // green
+            0.3: '#84cc16', // lime
+            0.45: '#eab308', // yellow - medium
             0.6: '#f97316', // orange
-            0.8: '#ef4444', // red - high
-            1.0: '#dc2626', // dark red - very high (less extreme)
+            0.75: '#ef4444', // red - high
+            0.9: '#dc2626', // dark red
+            1.0: '#b91c1c', // darker red - very high
           },
         });
         heatLayerRef.current.addTo(mapRef.current);
