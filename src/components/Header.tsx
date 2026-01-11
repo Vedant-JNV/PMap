@@ -37,7 +37,7 @@ const Header = ({
         {/* Tagline */}
         <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
           <Info className="w-4 h-4" />
-          <span className="italic">"A problem well stated is half solved"</span>
+          <span className="italic">"A problem well stated is a problem half solved"</span>
         </div>
 
         {/* Actions */}
