@@ -4,12 +4,13 @@ import { getFirestore } from 'firebase/firestore';
 // Your Firebase configuration
 // These are public/publishable keys - safe to include in frontend code
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyBf9BpN2fcmV_HnqmSHWQLfl4PMI6PoWFk",
   authDomain: "vedmaps-1fafb.firebaseapp.com",
   projectId: "vedmaps-1fafb",
   storageBucket: "vedmaps-1fafb.firebasestorage.app",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  messagingSenderId: "840837100741",
+  appId: "1:840837100741:web:03e95416c2d6d4bc1eacac",
+  measurementId: "G-46DQ19C3JY"
 };
 
 // Initialize Firebase
