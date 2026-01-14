@@ -1,10 +1,25 @@
-import { useState, useCallback, useMemo } from 'react';
-import { Issue, IssueCategory, calculateSeverity, getDistance, MERGE_RADIUS } from '@/types/issues';
-import { mockIssues } from '@/data/mockIssues';
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { Issue, IssueCategory } from '@/types/issues';
+import { subscribeToIssues, addIssueToFirestore, markIssueResolved } from '@/services/issueService';
 
 export const useIssues = () => {
-  const [issues, setIssues] = useState<Issue[]>(mockIssues);
+  const [issues, setIssues] = useState<Issue[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<IssueCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Subscribe to real-time updates from Firestore
+  useEffect(() => {
+    setLoading(true);
+    
+    const unsubscribe = subscribeToIssues((updatedIssues) => {
+      setIssues(updatedIssues);
+      setLoading(false);
+      setError(null);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const filteredIssues = useMemo(() => {
     if (selectedCategories.length === 0) {
@@ -28,70 +43,26 @@ export const useIssues = () => {
     setSelectedCategories([]);
   }, []);
 
-  const addIssue = useCallback((newIssue: Omit<Issue, 'id' | 'reportCount' | 'severity' | 'resolved' | 'resolutionConfirmations' | 'createdAt'>) => {
-    setIssues(prev => {
-      // Check for nearby issues of the same category
-      const nearbyIssue = prev.find(issue => 
-        issue.category === newIssue.category &&
-        !issue.resolved &&
-        getDistance(issue.lat, issue.lng, newIssue.lat, newIssue.lng) <= MERGE_RADIUS
-      );
+  const addIssue = useCallback(async (newIssue: Omit<Issue, 'id' | 'reportCount' | 'severity' | 'resolved' | 'resolutionConfirmations' | 'createdAt'>) => {
+    try {
+      await addIssueToFirestore(newIssue, issues);
+    } catch (err) {
+      console.error('Error adding issue:', err);
+      setError('Failed to add issue. Please try again.');
+    }
+  }, [issues]);
 
-      if (nearbyIssue) {
-        // Merge with existing issue
-        return prev.map(issue => {
-          if (issue.id === nearbyIssue.id) {
-            const newReportCount = issue.reportCount + 1;
-            return {
-              ...issue,
-              reportCount: newReportCount,
-              lastUpdated: new Date(),
-              severity: calculateSeverity(newReportCount, issue.category),
-              description: newIssue.description || issue.description,
-            };
-          }
-          return issue;
-        });
+  const markResolved = useCallback(async (issueId: string) => {
+    try {
+      const issue = issues.find(i => i.id === issueId);
+      if (issue) {
+        await markIssueResolved(issueId, issue.resolutionConfirmations);
       }
-
-      // Create new issue
-      const id = `issue-${Date.now()}`;
-      const createdIssue: Issue = {
-        id,
-        ...newIssue,
-        reportCount: 1,
-        severity: calculateSeverity(1, newIssue.category),
-        resolved: false,
-        resolutionConfirmations: 0,
-        createdAt: new Date(),
-      };
-
-      return [...prev, createdIssue];
-    });
-  }, []);
-
-  const markResolved = useCallback((issueId: string) => {
-    setIssues(prev => prev.map(issue => {
-      if (issue.id === issueId) {
-        const newConfirmations = issue.resolutionConfirmations + 1;
-        // Require 3 confirmations to mark as resolved
-        if (newConfirmations >= 3) {
-          return {
-            ...issue,
-            resolved: true,
-            resolutionConfirmations: newConfirmations,
-            lastUpdated: new Date(),
-          };
-        }
-        return {
-          ...issue,
-          resolutionConfirmations: newConfirmations,
-          lastUpdated: new Date(),
-        };
-      }
-      return issue;
-    }));
-  }, []);
+    } catch (err) {
+      console.error('Error marking issue as resolved:', err);
+      setError('Failed to mark issue as resolved. Please try again.');
+    }
+  }, [issues]);
 
   const stats = useMemo(() => {
     const activeIssues = issues.filter(i => !i.resolved);
@@ -119,5 +90,7 @@ export const useIssues = () => {
     addIssue,
     markResolved,
     stats,
+    loading,
+    error,
   };
 };
