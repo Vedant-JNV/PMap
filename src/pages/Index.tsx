@@ -23,6 +23,7 @@ const Index = () => {
     addIssue,
     markResolved,
     stats,
+    loading,
   } = useIssues();
 
   const [showHeatmap, setShowHeatmap] = useState(true);
