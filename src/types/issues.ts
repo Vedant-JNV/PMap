@@ -35,7 +35,7 @@ export const CATEGORIES: CategoryInfo[] = [
   { id: 'roads', label: 'Roads & Potholes', icon: '🛣️', color: '#f59e0b', weight: 1.3 },
   { id: 'garbage', label: 'Garbage & Sanitation', icon: '🗑️', color: '#84cc16', weight: 1.2 },
   { id: 'traffic', label: 'Traffic & Mobility', icon: '🚗', color: '#ef4444', weight: 1.0 },
-  { id: 'lighting', label: 'Street Lighting', icon: '💡', color: '#a855f7', weight: 0.9 },
+  { id: 'lighting', label: 'Electricity', icon: '⚡', color: '#a855f7', weight: 0.9 },
   { id: 'safety', label: 'Public Safety', icon: '🛡️', color: '#06b6d4', weight: 1.4 },
   { id: 'other', label: 'Other', icon: '📋', color: '#6b7280', weight: 1.0 },
 ];
