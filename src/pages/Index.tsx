@@ -12,9 +12,19 @@ import DraggablePanel from '@/components/DraggablePanel';
 import HeatmapLegend from '@/components/HeatmapLegend';
 import { Button } from '@/components/ui/button';
 import { useIssues } from '@/hooks/useIssues';
+import { useMockIssues } from '@/hooks/useMockIssues';
 import { Issue, IssueCategory } from '@/types/issues';
 
 const Index = () => {
+  const [isMockMode, setIsMockMode] = useState(false);
+  
+  // Live Firebase data
+  const liveData = useIssues();
+  
+  // Static mock data (no Firebase)
+  const mockData = useMockIssues();
+  
+  // Use appropriate data source based on mode
   const {
     filteredIssues,
     selectedCategories,
@@ -24,7 +34,7 @@ const Index = () => {
     markResolved,
     stats,
     loading,
-  } = useIssues();
+  } = isMockMode ? mockData : liveData;
 
   const [showHeatmap, setShowHeatmap] = useState(true);
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
@@ -35,6 +45,11 @@ const Index = () => {
   const [showHint, setShowHint] = useState(true);
 
   const constraintsRef = useRef<HTMLDivElement>(null);
+
+  const handleToggleMockMode = useCallback(() => {
+    setIsMockMode(prev => !prev);
+    setSelectedIssue(null); // Clear selected issue when switching modes
+  }, []);
 
   const handleIssueClick = useCallback((issue: Issue) => {
     setSelectedIssue(issue);
@@ -67,6 +82,8 @@ const Index = () => {
       <Header
         showHeatmap={showHeatmap}
         onToggleHeatmap={() => setShowHeatmap(!showHeatmap)}
+        isMockMode={isMockMode}
+        onToggleMockMode={handleToggleMockMode}
       />
 
       {/* Main content */}
@@ -150,6 +167,9 @@ const Index = () => {
           >
             <div className="bg-card/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-border text-sm text-muted-foreground flex items-center gap-2">
               📍 Click anywhere on the map to report an issue
+              {isMockMode && (
+                <span className="text-amber-500">(Demo - not saved)</span>
+              )}
               <button
                 onClick={() => setShowHint(false)}
                 className="ml-1 text-muted-foreground/60 hover:text-foreground transition-colors"
