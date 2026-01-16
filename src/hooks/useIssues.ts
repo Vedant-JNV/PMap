@@ -56,7 +56,7 @@ export const useIssues = () => {
     try {
       const issue = issues.find(i => i.id === issueId);
       if (issue) {
-        await markIssueResolved(issueId, issue.resolutionConfirmations);
+        await markIssueResolved(issueId, issue.resolutionConfirmations, issue.reportCount);
       }
     } catch (err) {
       console.error('Error marking issue as resolved:', err);

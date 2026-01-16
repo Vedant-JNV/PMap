@@ -102,12 +102,18 @@ export const addIssueToFirestore = async (
 };
 
 // Mark issue as resolved (with confirmation system)
-export const markIssueResolved = async (issueId: string, currentConfirmations: number): Promise<void> => {
+// For issues with 10+ reports, require 50% of total reports as confirmations
+// For issues with fewer reports, require minimum 3 confirmations
+export const markIssueResolved = async (issueId: string, currentConfirmations: number, reportCount: number): Promise<void> => {
   const issueRef = doc(db, ISSUES_COLLECTION, issueId);
   const newConfirmations = currentConfirmations + 1;
   
-  // Require 3 confirmations to mark as resolved
-  if (newConfirmations >= 3) {
+  // Calculate required confirmations: 50% of reports for 10+ reports, otherwise 3
+  const requiredConfirmations = reportCount >= 10 
+    ? Math.ceil(reportCount * 0.5) 
+    : 3;
+  
+  if (newConfirmations >= requiredConfirmations) {
     await updateDoc(issueRef, {
       resolved: true,
       resolutionConfirmations: newConfirmations,

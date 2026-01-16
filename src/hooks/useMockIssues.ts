@@ -75,11 +75,16 @@ export const useMockIssues = () => {
   }, [issues]);
 
   // Mock mark resolved - only updates local state
+  // For issues with 10+ reports, require 50% of total reports as confirmations
+  // For issues with fewer reports, require minimum 3 confirmations
   const markResolved = useCallback((issueId: string) => {
     setIssues(prev => prev.map(issue => {
       if (issue.id === issueId) {
         const newConfirmations = issue.resolutionConfirmations + 1;
-        if (newConfirmations >= 3) {
+        const requiredConfirmations = issue.reportCount >= 10 
+          ? Math.ceil(issue.reportCount * 0.5) 
+          : 3;
+        if (newConfirmations >= requiredConfirmations) {
           return { ...issue, resolved: true, resolutionConfirmations: newConfirmations };
         }
         return { ...issue, resolutionConfirmations: newConfirmations };
