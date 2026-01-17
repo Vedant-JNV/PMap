@@ -61,7 +61,7 @@ Issues are grouped into categories such as:
 - Roads & potholes
 - Garbage & sanitation
 - Traffic & mobility
-- Street lighting
+- Street lighting & Electricity
 - Public safety (aggregated and anonymous)
 
 Users can:
