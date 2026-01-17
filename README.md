@@ -2,7 +2,7 @@
 
 **Live Website:** https://vedmaps-1fafb.web.app/
 
-**Tagline:** *“A problem well stated is half solved.”*
+**Tagline:** *“A problem well stated is a problem half solved.”*
 
 VedMaps is a **web-based civic intelligence platform** that visualizes citizen-reported urban problems on an interactive map. It transforms scattered, individual complaints into **structured, analyzable, and publicly visible data**, enabling citizens, communities, and governments to better understand where problems exist and how severe they are.
 
@@ -79,7 +79,6 @@ Anyone can submit a problem by:
 - selecting a location on the map
 - choosing a category
 - adding a short description
-- optionally attaching an image
 
 To maintain data quality:
 - nearby reports of the same category are **merged**
