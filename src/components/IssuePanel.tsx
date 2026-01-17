@@ -1,20 +1,44 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Issue, getCategoryInfo } from '@/types/issues';
 import { Button } from '@/components/ui/button';
-import { X, Clock, Users, TrendingUp, CheckCircle } from 'lucide-react';
+import { X, Clock, Users, TrendingUp, CheckCircle, AlertTriangle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { toast } from '@/hooks/use-toast';
 
 interface IssuePanelProps {
   issue: Issue | null;
   onClose: () => void;
   onMarkResolved: (issueId: string) => void;
+  onReportSame: (issueId: string) => void;
 }
 
-const IssuePanel = ({ issue, onClose, onMarkResolved }: IssuePanelProps) => {
+const IssuePanel = ({ issue, onClose, onMarkResolved, onReportSame }: IssuePanelProps) => {
   if (!issue) return null;
 
   const categoryInfo = getCategoryInfo(issue.category);
-  const confirmationsNeeded = 3 - issue.resolutionConfirmations;
+  
+  // Calculate required confirmations based on report count
+  const requiredConfirmations = issue.reportCount >= 10 
+    ? Math.ceil(issue.reportCount * 0.5) 
+    : 3;
+  const confirmationsNeeded = requiredConfirmations - issue.resolutionConfirmations;
+
+  const handleReportSame = () => {
+    onReportSame(issue.id);
+    toast({
+      title: "Thank you for reporting!",
+      description: "Your report helps the community identify and prioritize issues.",
+    });
+  };
+
+  const handleMarkResolved = () => {
+    onMarkResolved(issue.id);
+    toast({
+      title: "Thank you for confirming!",
+      description: "Your confirmation helps verify resolved issues.",
+    });
+    onClose();
+  };
 
   return (
     <AnimatePresence>
@@ -99,7 +123,7 @@ const IssuePanel = ({ issue, onClose, onMarkResolved }: IssuePanelProps) => {
                   <span className="font-medium">Resolution in progress</span>
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {issue.resolutionConfirmations} of 3 confirmations received
+                  {issue.resolutionConfirmations} of {requiredConfirmations} confirmations received
                 </p>
               </div>
             )}
@@ -111,9 +135,18 @@ const IssuePanel = ({ issue, onClose, onMarkResolved }: IssuePanelProps) => {
           </div>
 
           {/* Footer Actions */}
-          <div className="p-4 border-t border-border space-y-2">
+          <div className="p-4 border-t border-border space-y-3">
             <Button
-              onClick={() => onMarkResolved(issue.id)}
+              onClick={handleReportSame}
+              variant="destructive"
+              className="w-full"
+              disabled={issue.resolved}
+            >
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              Report Same Issue
+            </Button>
+            <Button
+              onClick={handleMarkResolved}
               variant="success"
               className="w-full"
               disabled={issue.resolved}
@@ -126,7 +159,7 @@ const IssuePanel = ({ issue, onClose, onMarkResolved }: IssuePanelProps) => {
                 : 'Mark as Resolved'}
             </Button>
             <p className="text-xs text-center text-muted-foreground">
-              Community verification requires 3 confirmations
+              Community verification requires {requiredConfirmations} confirmations
             </p>
           </div>
         </div>

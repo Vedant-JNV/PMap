@@ -101,6 +101,18 @@ export const addIssueToFirestore = async (
   }
 };
 
+// Increment report count for an existing issue
+export const incrementReportCount = async (issueId: string, currentReportCount: number, category: IssueCategory): Promise<void> => {
+  const issueRef = doc(db, ISSUES_COLLECTION, issueId);
+  const newReportCount = currentReportCount + 1;
+  
+  await updateDoc(issueRef, {
+    reportCount: newReportCount,
+    lastUpdated: Timestamp.fromDate(new Date()),
+    severity: calculateSeverity(newReportCount, category),
+  });
+};
+
 // Mark issue as resolved (with confirmation system)
 // For issues with 10+ reports, require 50% of total reports as confirmations
 // For issues with fewer reports, require minimum 3 confirmations
