@@ -32,6 +32,7 @@ const Index = () => {
     clearFilters,
     addIssue,
     markResolved,
+    reportSameIssue,
     stats,
     loading,
   } = isMockMode ? mockData : liveData;
@@ -210,6 +211,7 @@ const Index = () => {
           issue={selectedIssue}
           onClose={() => setSelectedIssue(null)}
           onMarkResolved={markResolved}
+          onReportSame={reportSameIssue}
         />
       )}
 
