@@ -217,6 +217,117 @@ const generateWorldwideMockIssues = (): Issue[] => {
     }
   });
 
+  // Add 100+ issues specifically for NCR India (Delhi, Gurgaon, Noida, Ghaziabad, Faridabad)
+  const NCR_LOCATIONS = [
+    { lat: 28.6139, lng: 77.2090, name: 'Central Delhi' },
+    { lat: 28.5355, lng: 77.3910, name: 'Noida' },
+    { lat: 28.4595, lng: 77.0266, name: 'Gurgaon' },
+    { lat: 28.6692, lng: 77.4538, name: 'Ghaziabad' },
+    { lat: 28.4089, lng: 77.3178, name: 'Faridabad' },
+    { lat: 28.7041, lng: 77.1025, name: 'North Delhi' },
+    { lat: 28.5500, lng: 77.2500, name: 'South Delhi' },
+    { lat: 28.6500, lng: 77.1500, name: 'West Delhi' },
+    { lat: 28.6300, lng: 77.2800, name: 'East Delhi' },
+    { lat: 28.4800, lng: 77.5000, name: 'Greater Noida' },
+    { lat: 28.5800, lng: 77.3300, name: 'Noida Sector 62' },
+    { lat: 28.4100, lng: 77.0500, name: 'Gurgaon DLF' },
+    { lat: 28.4700, lng: 77.0700, name: 'Gurgaon Cyber City' },
+    { lat: 28.6400, lng: 77.3800, name: 'Indirapuram' },
+    { lat: 28.7200, lng: 77.5000, name: 'Loni' },
+    { lat: 28.5100, lng: 77.0800, name: 'Sohna Road' },
+    { lat: 28.6900, lng: 77.1500, name: 'Rohini' },
+    { lat: 28.5900, lng: 77.0500, name: 'Dwarka' },
+    { lat: 28.6800, lng: 77.2200, name: 'Karol Bagh' },
+    { lat: 28.5700, lng: 77.2100, name: 'Saket' },
+  ];
+
+  const NCR_DESCRIPTIONS: Record<IssueCategory, string[]> = {
+    water: [
+      'DJB pipeline burst flooding colony streets',
+      'No water supply for 3 days in residential society',
+      'Sewage overflow into main road during monsoon',
+      'Borewell water contaminated with high TDS',
+      'Water tanker mafia overcharging residents',
+      'Underground water tank leakage in apartment complex',
+    ],
+    roads: [
+      'Massive pothole on ring road causing accidents',
+      'Unfinished metro construction blocking traffic',
+      'Road cave-in near municipal building',
+      'DDA road unmarked and dangerous at night',
+      'PWD road repair pending for 6 months',
+      'Waterlogging on main highway during rains',
+    ],
+    garbage: [
+      'MCD garbage truck not collecting for 2 weeks',
+      'Open garbage dump near residential area attracting stray dogs',
+      'E-waste illegally dumped in vacant plot',
+      'Dhalaao overflowing and spreading foul smell',
+      'Construction debris blocking footpath',
+      'Plastic waste clogging storm drains',
+    ],
+    traffic: [
+      'Traffic signal not working at major crossing',
+      'No speed breakers in school zone',
+      'Encroachment causing traffic jam daily',
+      'Metro station exit creating pedestrian chaos',
+      'Wrong-way driving on one-way road',
+      'Auto-rickshaw stand blocking main road',
+    ],
+    lighting: [
+      'Street lights not working in entire colony for weeks',
+      'Power outages during peak summer hours',
+      'Transformer overloaded and frequently tripping',
+      'Exposed electrical wires on main road pole',
+      'Park completely dark at night, unsafe',
+      'Power theft causing voltage fluctuations',
+    ],
+    safety: [
+      'Stray dogs attacking pedestrians near market',
+      'Open manhole cover missing on main road',
+      'Unauthorized construction blocking fire escape',
+      'Drug peddlers active in park after dark',
+      'Eve teasing reported near bus stop',
+      'Broken boundary wall of government school',
+    ],
+    other: [
+      'Unauthorized vendors blocking footpath',
+      'Noise pollution from wedding banquets',
+      'Air quality index hazardous near industrial area',
+      'Public toilet non-functional and unhygienic',
+      'Tree fallen blocking road for days',
+      'Mosquito breeding in stagnant water',
+    ],
+  };
+
+  // Generate 100+ NCR issues
+  for (let i = 0; i < 110; i++) {
+    const location = NCR_LOCATIONS[Math.floor(Math.random() * NCR_LOCATIONS.length)];
+    const category = categories[Math.floor(Math.random() * categories.length)];
+    const descriptions = NCR_DESCRIPTIONS[category];
+    const description = descriptions[Math.floor(Math.random() * descriptions.length)];
+    const reportCount = Math.floor(Math.random() * 60) + 5;
+    const daysAgo = Math.floor(Math.random() * 100);
+    
+    // Spread issues within each NCR location
+    const spreadLat = (Math.random() - 0.5) * 0.06;
+    const spreadLng = (Math.random() - 0.5) * 0.06;
+    
+    issues.push({
+      id: `mock-ncr-${id++}`,
+      category,
+      description: `${description} - ${location.name}`,
+      lat: location.lat + spreadLat,
+      lng: location.lng + spreadLng,
+      reportCount,
+      lastUpdated: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000),
+      createdAt: new Date(Date.now() - (daysAgo + Math.floor(Math.random() * 60)) * 24 * 60 * 60 * 1000),
+      resolved: Math.random() > 0.88,
+      resolutionConfirmations: Math.random() > 0.92 ? Math.floor(Math.random() * 4) : 0,
+      severity: calculateSeverity(reportCount, category),
+    });
+  }
+
   return issues;
 };
 
