@@ -1,73 +1,159 @@
-# Welcome to your Lovable project
+# 🗺️ VedMaps — Civic Intelligence Web Platform
 
-## Project info
+**Live Website:** https://vedmaps-1fafb.web.app/
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+**Tagline:** *“A problem well stated is half solved.”*
 
-## How can I edit this code?
+VedMaps is a **web-based civic intelligence platform** that visualizes citizen-reported urban problems on an interactive map. It transforms scattered, individual complaints into **structured, analyzable, and publicly visible data**, enabling citizens, communities, and governments to better understand where problems exist and how severe they are.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## 🌍 What VedMaps Does
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+VedMaps helps answer one simple but powerful question:
 
-Changes made via Lovable will be committed automatically to this repo.
+> *Where are the real problems in a city, and how serious are they?*
 
-**Use your preferred IDE**
+It does this by:
+- Collecting citizen-reported issues
+- Merging similar nearby complaints
+- Visualizing them as **heatmaps and clustered markers**
+- Allowing anyone to explore, filter, and analyze problem patterns
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+VedMaps is **not just a complaint portal** — it is a **problem discovery and analysis tool**.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🧠 Core Philosophy
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- Problems should be **visible**, not hidden in forms
+- Truth should **emerge statistically**, not by authority
+- Citizens are not just complainants, but **co-analysts of their city**
+- Transparency enables innovation, accountability, and better governance
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🗺️ Map & Visualization
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+The website is centered around an **interactive map** that provides two complementary views:
 
-**Edit a file directly in GitHub**
+### 🔥 Heatmap View
+- Shows **problem density and severity**
+- Intensity depends on:
+  - number of reports
+  - type of problem
+  - recency of reports
+- Helps identify **hotspots** that need attention
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 📍 Marker View
+- Displays **merged issue clusters**
+- Used for closer inspection when zooming in
+- Prevents clutter while preserving detail
 
-**Use GitHub Codespaces**
+The interface automatically adapts based on zoom level to keep the map readable and informative.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## 📌 Problem Categories
 
-This project is built with:
+Issues are grouped into categories such as:
+- Water supply
+- Roads & potholes
+- Garbage & sanitation
+- Traffic & mobility
+- Street lighting
+- Public safety (aggregated and anonymous)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Users can:
+- filter by individual categories
+- overlay multiple categories together
+- identify areas where different problems overlap
 
-## How can I deploy this project?
+This enables discovery of **urban stress zones**, not just isolated complaints.
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## 📨 Reporting & Aggregation
 
-Yes, you can!
+Anyone can submit a problem by:
+- selecting a location on the map
+- choosing a category
+- adding a short description
+- optionally attaching an image
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+To maintain data quality:
+- nearby reports of the same category are **merged**
+- repeated reports strengthen severity instead of creating duplicates
+- single or isolated reports have limited impact
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+---
+
+## 📉 Heatmap Intelligence
+
+VedMaps heatmaps are not static visuals.  
+They are driven by logic that considers:
+
+- **Severity:** how many people report the issue
+- **Category weight:** some problems are more critical than others
+- **Time decay:** older issues gradually lose intensity
+- **Confidence:** issues gain strength through independent confirmations
+
+This ensures the map reflects **current, collective reality**, not noise.
+
+---
+
+## ✔️ Handling Fake or Spam Reports
+
+VedMaps does not block reports outright.  
+Instead, it reduces the influence of unreliable data using:
+
+- spatial diversity (reports from different locations)
+- time spread (reports over time, not bursts)
+- community confirmation
+- natural decay of unsupported issues
+
+This allows truth to emerge **organically and fairly**.
+
+---
+
+## 🕒 Issue Lifecycle
+
+Each issue progresses through states:
+- **Active:** fresh and receiving reports
+- **Fading:** older with no recent activity
+- **Dormant:** low confidence and outdated
+- **Archived:** resolved and no longer visible by default
+
+Issues are never deleted, ensuring data remains useful for analysis and history.
+
+---
+
+## 👥 Who VedMaps Is For
+
+- Citizens who want to understand their city
+- Student innovators and startups looking for real problems to solve
+- Researchers analyzing urban patterns
+- Local governments seeking data-driven prioritization
+- Communities advocating for accountability using evidence
+
+---
+
+## 🎯 What Makes VedMaps Different
+
+- Focus on **analysis**, not ticketing
+- No strict admin–citizen visibility divide
+- Emphasis on **aggregation and patterns**
+- Designed for transparency, reuse, and insight
+
+VedMaps acts as a **public mirror of urban reality**.
+
+---
+
+## 🏁 Closing Note
+
+VedMaps does not claim to fix city problems directly.  
+Its purpose is more fundamental:
+
+> **To make problems visible, measurable, and analyzable — so solutions can emerge.**
+
+**VedMaps — Make problems visible. Make data useful.**
