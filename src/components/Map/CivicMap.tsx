@@ -87,7 +87,7 @@ interface CivicMapProps {
 }
 
 // Zoom level at which markers appear in heatmap mode
-const MARKER_ZOOM_THRESHOLD = 12;
+const MARKER_ZOOM_THRESHOLD = 13;
 
 // Dynamic radius based on zoom level
 const getHeatmapRadius = (zoom: number): number => {
