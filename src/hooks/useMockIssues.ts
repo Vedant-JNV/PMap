@@ -93,6 +93,22 @@ export const useMockIssues = () => {
     }));
   }, []);
 
+  // Mock report same issue - increments report count
+  const reportSameIssue = useCallback((issueId: string) => {
+    setIssues(prev => prev.map(issue => {
+      if (issue.id === issueId) {
+        const newReportCount = issue.reportCount + 1;
+        return {
+          ...issue,
+          reportCount: newReportCount,
+          lastUpdated: new Date(),
+          severity: calculateSeverity(newReportCount, issue.category),
+        };
+      }
+      return issue;
+    }));
+  }, []);
+
   const stats = useMemo(() => {
     const activeIssues = issues.filter(i => !i.resolved);
     const resolvedIssues = issues.filter(i => i.resolved);
@@ -118,6 +134,7 @@ export const useMockIssues = () => {
     clearFilters,
     addIssue,
     markResolved,
+    reportSameIssue,
     stats,
     loading,
     error,

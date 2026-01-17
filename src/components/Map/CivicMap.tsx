@@ -87,7 +87,15 @@ interface CivicMapProps {
 }
 
 // Zoom level at which markers appear in heatmap mode
-const MARKER_ZOOM_THRESHOLD = 16;
+const MARKER_ZOOM_THRESHOLD = 13;
+
+// Dynamic radius based on zoom level
+const getHeatmapRadius = (zoom: number): number => {
+  if (zoom >= 16) return 52;
+  if (zoom >= 14) return 47;
+  if (zoom >= 12) return 42;
+  return 37;
+};
 
 const CivicMap = ({ issues, showHeatmap, onIssueClick, onMapClick }: CivicMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -190,7 +198,7 @@ const CivicMap = ({ issues, showHeatmap, onIssueClick, onMapClick }: CivicMapPro
 
       if (heatData.length > 0) {
         heatLayerRef.current = L.heatLayer(heatData, {
-          radius: 35, // Smaller radius for less blobby appearance
+          radius: getHeatmapRadius(zoomLevel), // Dynamic radius based on zoom
           blur: 20, // Less blur for more defined hotspots
           maxZoom: 17,
           max: MAX_HEAT_WEIGHT, // Use our cap as the max

@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Issue, IssueCategory } from '@/types/issues';
-import { subscribeToIssues, addIssueToFirestore, markIssueResolved } from '@/services/issueService';
+import { subscribeToIssues, addIssueToFirestore, markIssueResolved, incrementReportCount } from '@/services/issueService';
 
 export const useIssues = () => {
   const [issues, setIssues] = useState<Issue[]>([]);
@@ -64,6 +64,18 @@ export const useIssues = () => {
     }
   }, [issues]);
 
+  const reportSameIssue = useCallback(async (issueId: string) => {
+    try {
+      const issue = issues.find(i => i.id === issueId);
+      if (issue) {
+        await incrementReportCount(issueId, issue.reportCount, issue.category);
+      }
+    } catch (err) {
+      console.error('Error reporting same issue:', err);
+      setError('Failed to report issue. Please try again.');
+    }
+  }, [issues]);
+
   const stats = useMemo(() => {
     const activeIssues = issues.filter(i => !i.resolved);
     const resolvedIssues = issues.filter(i => i.resolved);
@@ -89,6 +101,7 @@ export const useIssues = () => {
     clearFilters,
     addIssue,
     markResolved,
+    reportSameIssue,
     stats,
     loading,
     error,
